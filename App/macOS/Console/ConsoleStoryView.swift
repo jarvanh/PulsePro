@@ -321,7 +321,8 @@ extension ConsoleStoryViewModel {
         text.append(titleFirstPart, helpers.digitalAttributes)
         
         // Title second part (regular)
-        var titleSecondPart = options.isCompactMode ? "" : "\(message.level) · "
+        let level = LoggerStore.Level(rawValue: message.level) ?? .debug
+        var titleSecondPart = options.isCompactMode ? "" : "\(level.name) · "
         titleSecondPart.append("\(message.label.name)")
         titleSecondPart.append(options.isCompactMode ? " " : "\n")
         text.append(titleSecondPart, helpers.titleAttributes)
