@@ -49,7 +49,7 @@ final class ConsoleNetworkRequestContextMenuViewModelPro {
     }
 
     var host: String? {
-        task.host?.value
+        task.host
     }
 
     var cURLDescription: String {

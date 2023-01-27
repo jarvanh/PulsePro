@@ -6,7 +6,7 @@ import SwiftUI
 import Pulse
 
 struct MessageDetailsViewPro: View {
-    let viewModel: ConsoleMessageDetailsViewModel
+    let message: LoggerMessageEntity
     @Environment(\.colorScheme) var colorScheme: ColorScheme
     @State var isMetaVisible = false
     var onClose: (() -> Void)?
@@ -17,9 +17,6 @@ struct MessageDetailsViewPro: View {
                 Button(action: { isMetaVisible = true }) {
                     Image(systemName: "info.circle")
                 }.padding(.leading, 4)
-                if let badge = viewModel.badge {
-                    BadgeView(viewModel: BadgeViewModel(title: badge.title, color: badge.color.opacity(colorScheme == .light ? 0.25 : 0.5)))
-                }
                 Spacer()
                 if let onClose = onClose {
                     Button(action: onClose) {
@@ -43,13 +40,13 @@ struct MessageDetailsViewPro: View {
                     Button("Close") { isMetaVisible = false }
                         .keyboardShortcut(.cancelAction)
                 }.padding()
-                ConsoleMessageMetadataView(message: viewModel.message)
+                ConsoleMessageMetadataView(message: message)
             }.frame(width: 440, height: 600)
         })
     }
 
     private var textView: some View {
-        RichTextViewPro(viewModel: .init(string: NSAttributedString(string: viewModel.text, attributes: [
+        RichTextViewPro(viewModel: .init(string: NSAttributedString(string: message.text, attributes: [
             .foregroundColor: NSColor.labelColor,
             .font: NSFont.systemFont(ofSize: CGFloat(AppSettings.shared.messageFontSize)),
             .paragraphStyle: NSParagraphStyle.make(lineHeight: Constants.ResponseViewer.lineHeight(for: AppSettings.shared.messageFontSize))
@@ -61,7 +58,7 @@ struct MessageDetailsViewPro: View {
 struct MessageDetailsViewPro_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            MessageDetailsViewPro(viewModel: .init(message: try! LoggerStore.mock.allMessages()[0]))
+            MessageDetailsViewPro(message: try! LoggerStore.mock.allMessages()[0])
                 .previewLayout(.fixed(width: 600, height: 400))
         }
     }

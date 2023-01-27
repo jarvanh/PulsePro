@@ -306,3 +306,14 @@ private struct ExDivider: View {
             .edgesIgnoringSafeArea(.vertical)
     }
 }
+
+final class ConsoleToolbarViewModel: ObservableObject {
+    @Published var isFiltersPaneHidden = true
+    @AppStorage("console-view-is-vertical") var isVertical = true {
+        didSet { objectWillChange.send() }
+    }
+    @Published var isOnlyErrors = false
+    @Published var isOnlyPins = false
+    @Published var isSearchBarActive = false
+    @Published var isNowEnabled = true
+}

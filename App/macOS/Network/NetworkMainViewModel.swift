@@ -11,7 +11,7 @@ final class NetworkMainViewModel: NSObject, NSFetchedResultsControllerDelegate, 
 
     let list = ManagedObjectsList<NetworkTaskEntity>()
     let details: ConsoleDetailsPanelViewModel
-    let filters: NetworkSearchCriteriaViewModel
+    let filters: ConsoleSearchCriteriaViewModel
     let search: TextSearchViewModel
     let toolbar: ConsoleToolbarViewModel
     #warning("TODO: reimplement what text is used and don't pull related message")
@@ -27,13 +27,13 @@ final class NetworkMainViewModel: NSObject, NSFetchedResultsControllerDelegate, 
     private var latestSessionId: UUID?
     private var isFirstRefresh = true
     private var cancellables = [AnyCancellable]()
-    private var appliedProgrammaticFilters: [NetworkSearchFilter] = []
 
     init(store: LoggerStore, toolbar: ConsoleToolbarViewModel, details: ConsoleDetailsPanelViewModel) {
         self.store = store
         self.toolbar = toolbar
         self.details = details
-        self.filters = NetworkSearchCriteriaViewModel(store: store)
+        self.filters = ConsoleSearchCriteriaViewModel(store: store, source: .store)
+        self.filters.mode = .tasks
 
         let request = NSFetchRequest<NetworkTaskEntity>(entityName: "\(NetworkTaskEntity.self)")
         request.fetchBatchSize = 250
@@ -59,9 +59,9 @@ final class NetworkMainViewModel: NSObject, NSFetchedResultsControllerDelegate, 
         toolbar.$isOnlyPins.removeDuplicates().dropFirst().sink { [weak self] _ in
             DispatchQueue.main.async { self?.refreshNow() }
         }.store(in: &cancellables)
-        
-        filters.dataNeedsReload.throttle(for: 0.5, scheduler: DispatchQueue.main, latest: true).sink {
-            self.refreshNow()
+
+        filters.$criteria.dropFirst().throttle(for: 0.5, scheduler: DispatchQueue.main, latest: true).sink { [weak self] _ in
+            self?.refreshNow()
         }.store(in: &cancellables)
 
         Publishers.CombineLatest($searchTerm.throttle(for: 0.33, scheduler: RunLoop.main, latest: true), search.$searchOptions).dropFirst().sink { [weak self] searchTerm, searchOptions in
@@ -96,18 +96,12 @@ final class NetworkMainViewModel: NSObject, NSFetchedResultsControllerDelegate, 
     // MARK: Refresh
 
     private func refreshNow() {
-        // Get sessionId
-        let sessionId = store === LoggerStore.shared ? LoggerStore.Session.current.id : latestSessionId
-        
         // Search messages
-        NetworkSearchCriteria.update(request: controller.fetchRequest, filterTerm: "", criteria: filters.criteria, filters: filters.filters, isOnlyErrors: toolbar.isOnlyErrors, sessionId: sessionId)
+        #warning("pass filter term?")
+        controller.fetchRequest.predicate = ConsoleSearchCriteria.makeNetworkPredicates(criteria: filters.criteria, isOnlyErrors: toolbar.isOnlyErrors, filterTerm: "")
         try? controller.performFetch()
         self.didRefreshTasks()
-        
-        if latestSessionId == nil {
-            latestSessionId = list.first?.session
-        }
-        
+
         self.search.refresh(searchTerm: searchTerm, searchOptions: search.searchOptions)
     }
 
@@ -172,18 +166,6 @@ final class NetworkMainViewModel: NSObject, NSFetchedResultsControllerDelegate, 
         if isChangeContainsOnlyAppends, let appendRange = appendRange {
             if toolbar.isOnlyPins {
                 // This is a new message, it can't possibly be pinned
-            } else if !appliedProgrammaticFilters.isEmpty {
-                var appendedTasks: [NetworkTaskEntity] = []
-                for index in appendRange {
-                    appendedTasks.append(self.controller.object(at: IndexPath(item: index, section: 0)))
-                }
-                let filteredTasks = appendedTasks.filter { evaluateProgrammaticFilters(appliedProgrammaticFilters, entity: $0, store: store) }
-                if !filteredTasks.isEmpty {
-                    let currentCount = list.count
-                    let shiftedRange = (appendRange.lowerBound - currentCount)..<(appendRange.upperBound - currentCount)
-                    let allRequests = Array(list) + filteredTasks
-                    list.update(.append(range: shiftedRange), AnyCollection(allRequests))
-                }
             } else {
                 list.update(.append(range: appendRange), AnyCollection(requests))
             }
@@ -197,21 +179,10 @@ final class NetworkMainViewModel: NSObject, NSFetchedResultsControllerDelegate, 
     // MARK: Helpers
 
     private func didRefreshTasks() {
-        var tasks: AnyCollection<NetworkTaskEntity>
-        
-        // Apply filters that couldn't be done programatically
-        if let filters = filters.programmaticFilters {
-            self.appliedProgrammaticFilters = filters
-            let objects = controller.fetchedObjects ?? []
-            tasks = AnyCollection(objects.filter { evaluateProgrammaticFilters(filters, entity: $0, store: store) })
-        } else {
-            tasks = AnyCollection(FetchedObjects(controller: controller))
-        }
-        
+        var tasks = AnyCollection(FetchedObjects(controller: controller))
         if toolbar.isOnlyPins {
             tasks = AnyCollection(tasks.filter(pins.isPinned))
         }
-        
         list.update(.reload, tasks)
         textSearch.replace(tasks)
     }

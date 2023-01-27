@@ -29,7 +29,6 @@ final class ConsoleMainViewModel: NSObject, NSFetchedResultsControllerDelegate, 
 
     private(set) var store: LoggerStore
     private let controller: NSFetchedResultsController<LoggerMessageEntity>
-    private var latestSessionId: UUID?
     private var cancellables = [AnyCancellable]()
     
     init(store: LoggerStore, toolbar: ConsoleToolbarViewModel, details: ConsoleDetailsPanelViewModel, mode: ConsoleModePickerViewModelPro) {
@@ -37,7 +36,7 @@ final class ConsoleMainViewModel: NSObject, NSFetchedResultsControllerDelegate, 
         self.toolbar = toolbar
         self.details = details
         self.mode = mode
-        self.filters = ConsoleSearchCriteriaViewModel(store: store)
+        self.filters = ConsoleSearchCriteriaViewModel(store: store, source: .store)
 
         self.pins = PinsService.service(for: store)
         
@@ -69,8 +68,8 @@ final class ConsoleMainViewModel: NSObject, NSFetchedResultsControllerDelegate, 
         toolbar.$isOnlyPins.removeDuplicates().dropFirst().sink { [weak self] _ in
             DispatchQueue.main.async { self?.refreshNow() }
         }.store(in: &cancellables)
-        
-        filters.dataNeedsReload.throttle(for: 0.5, scheduler: DispatchQueue.main, latest: true).sink { [weak self] in
+
+        filters.$criteria.dropFirst().throttle(for: 0.5, scheduler: DispatchQueue.main, latest: true).sink { [weak self] _ in
             self?.refreshNow()
         }.store(in: &cancellables)
 
@@ -107,16 +106,9 @@ final class ConsoleMainViewModel: NSObject, NSFetchedResultsControllerDelegate, 
     // MARK: Refresh
 
     private func refresh(filterTerm: String) {
-        // Get sessionId
-        let sessionId = store === LoggerStore.shared ? LoggerStore.Session.current.id : latestSessionId
-
         // Search messages
-        ConsoleSearchCriteria.update(request: controller.fetchRequest, filterTerm: filterTerm, criteria: filters.criteria, filters: filters.filters, sessionId: sessionId, isOnlyErrors: toolbar.isOnlyErrors, isOnlyNetwork: false)
+        controller.fetchRequest.predicate = ConsoleSearchCriteria.makeMessagePredicates(criteria: filters.criteria, isOnlyErrors: toolbar.isOnlyPins, filterTerm: filterTerm)
         try? controller.performFetch()
-        
-        if latestSessionId == nil {
-            latestSessionId = list.first?.session
-        }
 
         didRefreshMessages()
         search.refresh(searchTerm: searchTerm, searchOptions: search.searchOptions)

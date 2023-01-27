@@ -8,6 +8,8 @@ import Pulse
 import Combine
 import WebKit
 
+#warning("use the view from the main framework")
+
 struct ConsoleStoryView: View {
     @StateObject private var viewModel: ConsoleStoryViewModel
     @Environment(\.colorScheme) var colorScheme: ColorScheme

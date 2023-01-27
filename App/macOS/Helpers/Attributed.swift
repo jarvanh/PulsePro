@@ -14,4 +14,11 @@ extension NSParagraphStyle {
         let lineHeight = Constants.ResponseViewer.lineHeight(for: fontSize)
         return make(lineHeight: lineHeight)
     }
+
+    static func make(lineHeight: CGFloat) -> NSParagraphStyle {
+        let ps = NSMutableParagraphStyle()
+        ps.maximumLineHeight = lineHeight
+        ps.minimumLineHeight = lineHeight
+        return ps
+    }
 }

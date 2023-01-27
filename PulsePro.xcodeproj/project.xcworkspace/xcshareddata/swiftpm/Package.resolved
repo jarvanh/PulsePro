@@ -1,12 +1,12 @@
 {
   "pins" : [
     {
-      "identity" : "swift-log",
+      "identity" : "pulse",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-log.git",
+      "location" : "https://github.com/kean/Pulse",
       "state" : {
-        "revision" : "5d66f7ba25daf4f94100e7022febf3c75e37a6c7",
-        "version" : "1.4.2"
+        "branch" : "master",
+        "revision" : "5f2e5517852e268fa7cc2768a6d9efaad9805dda"
       }
     }
   ],
