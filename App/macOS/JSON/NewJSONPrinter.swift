@@ -90,7 +90,7 @@ extension JSON.Element {
 // MARK: JSONRenderer
 
 protocol NewJSONRenderer: AnyObject {
-    func append(_ string: String, element: JSONElement)
+    func append(_ string: String, element: _JSONElement)
     func indent(count: Int)
     func newline()
 }
@@ -101,12 +101,12 @@ final class NewJSONPrinter {
     }
 
     private var attributes: [StringStyle: [NSAttributedString.Key: Any]] = [
-        .punctuation: [.foregroundColor: JSONColors.punctuation],
-        .key: [.foregroundColor: JSONColors.key],
-        .string: [.foregroundColor: JSONColors.valueString],
-        .number: [.foregroundColor: JSONColors.valueOther],
-        .boolean: [.foregroundColor: JSONColors.valueOther],
-        .null: [.foregroundColor: JSONColors.null]
+        .punctuation: [.foregroundColor: _JSONColors.punctuation],
+        .key: [.foregroundColor: _JSONColors.key],
+        .string: [.foregroundColor: _JSONColors.valueString],
+        .number: [.foregroundColor: _JSONColors.valueOther],
+        .boolean: [.foregroundColor: _JSONColors.valueOther],
+        .null: [.foregroundColor: _JSONColors.null]
     ]
     
     private var moreAttributesProto: [NSAttributedString.Key: Any] = [
@@ -345,12 +345,12 @@ final class NewAttributedStringJSONRenderer: NewJSONRenderer {
     private let fontSize: CGFloat
     private let lineHeight: CGFloat
     
-    private var attributes: [JSONElement: [NSAttributedString.Key: Any]] = [
-        .punctuation: [.foregroundColor: JSONColors.punctuation],
-        .key: [.foregroundColor: JSONColors.key],
-        .valueString: [.foregroundColor: JSONColors.valueString],
-        .valueOther: [.foregroundColor: JSONColors.valueOther],
-        .null: [.foregroundColor: JSONColors.null]
+    private var attributes: [_JSONElement: [NSAttributedString.Key: Any]] = [
+        .punctuation: [.foregroundColor: _JSONColors.punctuation],
+        .key: [.foregroundColor: _JSONColors.key],
+        .valueString: [.foregroundColor: _JSONColors.valueString],
+        .valueOther: [.foregroundColor: _JSONColors.valueOther],
+        .null: [.foregroundColor: _JSONColors.null]
     ]
     
     init(fontSize: CGFloat, lineHeight: CGFloat) {
@@ -358,7 +358,7 @@ final class NewAttributedStringJSONRenderer: NewJSONRenderer {
         self.lineHeight = lineHeight
     }
     
-    func append(_ string: String, element: JSONElement) {
+    func append(_ string: String, element: _JSONElement) {
         output.append(string, attributes[element]!)
     }
 
@@ -383,7 +383,7 @@ final class NewAttributedStringJSONRenderer: NewJSONRenderer {
     }
 }
 
-struct JSONColors {
+struct _JSONColors {
     static let punctuation = UXColor.dynamic(
         light: .init(red: 113.0/255.0, green: 128.0/255.0, blue: 141.0/255.0, alpha: 1.0),
         dark: .init(red: 108.0/255.0, green: 121.0/255.0, blue: 134.0/255.0, alpha: 1.0)
@@ -397,7 +397,7 @@ struct JSONColors {
     static let null = Palette.pink
 }
 
-enum JSONElement {
+enum _JSONElement {
     case punctuation
     case key
     case valueString

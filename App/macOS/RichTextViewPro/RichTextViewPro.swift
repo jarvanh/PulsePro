@@ -238,7 +238,7 @@ private func configureTextView(_ textView: UXTextView, _ isAutomaticLinkDetectio
         ]
     case .message, .headers, .response, .curl:
         textView.linkTextAttributes = [
-            .foregroundColor: JSONColors.valueString,
+            .foregroundColor: _JSONColors.valueString,
             .underlineStyle: 1,
             .cursor: NSCursor.pointingHand
         ]
@@ -639,11 +639,7 @@ struct RichTextViewPro_Previews: PreviewProvider {
 private extension RichTextViewPro {
     init(json: Any) {
         let fontSize = AppSettings.shared.viewerFontSize
-        let renderer = AttributedStringJSONRenderer(fontSize: CGFloat(fontSize), lineHeight: Constants.ResponseViewer.lineHeight(for: fontSize))
-        let printer = JSONPrinter(renderer: renderer)
-        #warning("TODO: pass error")
-        printer.render(json: json, error: nil)
-        self.init(viewModel: .init(string: renderer.make()), content: .response)
+        self.init(viewModel: .init(string: JSONViewModel(json: json).format(json: json)), content: .response)
     }
 }
 

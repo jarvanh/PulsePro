@@ -24,7 +24,7 @@ struct ConsoleMessageDetailsRouterPro: View {
             NetworkInspectorViewPro(viewModel: .init(message: message, task: task), onClose: onClose)
                 .id(message.objectID)
         } else {
-            MessageDetailsViewPro(viewModel: .init(message: message), onClose: onClose)
+            MessageDetailsViewPro(message: message, onClose: onClose)
                 .id(message.objectID)
         }
     }

@@ -79,7 +79,7 @@ private struct MainViewRouter: View {
     
     var body: some View {
         if let viewModel = details.viewModel {
-            ConsoleContainerView(viewModel: viewModel)
+            ConsoleContainerViewPro(viewModel: viewModel)
                 .id(ObjectIdentifier(viewModel))
         } else {
             AppWelcomeView(buttonOpenDocumentTapped: openDocument, openDocument: details.open)

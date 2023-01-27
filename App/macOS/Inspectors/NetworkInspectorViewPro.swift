@@ -75,12 +75,14 @@ struct NetworkInspectorViewPro: View {
             }
         }.padding(EdgeInsets(top: 7, leading: 10, bottom: 6, trailing: 10))
     }
-    
+
+    #warning("add summary page")
+
     @ViewBuilder
     private var selectedTabView: some View {
         switch selectedTab {
         case .summary:
-            NetworkInspectorSummaryView(viewModel: viewModel.makeSummaryModel())
+            makeSummaryView()
         case .headers:
             NetworkInspectorHeadersViewPro(viewModel: viewModel.makeHeadersModel())
         case .request:
@@ -104,6 +106,14 @@ struct NetworkInspectorViewPro: View {
         case .curl:
             RichTextViewPro(viewModel: .init(string: viewModel.makecURLRepresentation()), content: .curl)
         }
+    }
+
+    @ViewBuilder
+    private func makeSummaryView() -> some View {
+        let string = TextRenderer().make {
+            $0.render(viewModel.task, content: [.largeHeader, .taskDetails, .requestComponents, .requestQueryItems, .errorDetails, .requestComponents])
+        }
+        RichTextViewPro(viewModel: .init(string: string), content: .headers)
     }
 
     @ViewBuilder
@@ -157,10 +167,6 @@ final class NetworkInspectorViewModelPro: ObservableObject {
     }
 
     // MARK: - Tabs
-
-    func makeSummaryModel() -> NetworkInspectorSummaryViewModel {
-        NetworkInspectorSummaryViewModel(task: task)
-    }
 
     func makeHeadersModel() -> NetworkInspectorHeaderViewModel {
         NetworkInspectorHeaderViewModel(task: task)

@@ -7,7 +7,7 @@ import CoreData
 import Pulse
 import Combine
 
-struct ConsoleContainerView: View {
+struct ConsoleContainerViewPro: View {
     let viewModel: ConsoleContainerViewModel
     
     var body: some View {
@@ -33,7 +33,7 @@ struct ConsoleContainerView: View {
                 }
                 ToolbarItemGroup(placement: .automatic) {
                     ConsoleToolbarSearchBar(viewModel: viewModel)
-                    ConsoleToolbarToggleOnlyErrorsButton(viewModel: viewModel.toolbar)
+                    ConsoleToolbarToggleOnlyErrorsButtonPro(viewModel: viewModel.toolbar)
                     ConsoleToolbarToggleFiltersButton(viewModel: viewModel.toolbar)
                     ConsoleToolbarToggleVerticalView(viewModel: viewModel.toolbar)
                 }
@@ -88,15 +88,17 @@ private struct ConsoleContainerFiltersPanel: View {
         self.viewModel = viewModel
         self.mode = viewModel.mode
     }
-    
+
+#warning("update frames")
+
     var body: some View {
         switch mode.mode {
         case .list, .text:
-            ConsoleFiltersView(viewModel: viewModel.console.filters)
-                .frame(width: Filters.preferredWidth)
+            ConsoleSearchCriteriaView(viewModel: viewModel.console.filters)
+                .frame(width: 320)
         case .network:
-            NetworkFiltersView(viewModel: viewModel.network.filters)
-                .frame(width: Filters.preferredWidth)
+            ConsoleSearchCriteriaView(viewModel: viewModel.network.filters)
+                .frame(width: 320)
         }
     }
 }
@@ -305,15 +307,4 @@ private struct ExDivider: View {
             .frame(width: width)
             .edgesIgnoringSafeArea(.vertical)
     }
-}
-
-final class ConsoleToolbarViewModel: ObservableObject {
-    @Published var isFiltersPaneHidden = true
-    @AppStorage("console-view-is-vertical") var isVertical = true {
-        didSet { objectWillChange.send() }
-    }
-    @Published var isOnlyErrors = false
-    @Published var isOnlyPins = false
-    @Published var isSearchBarActive = false
-    @Published var isNowEnabled = true
 }

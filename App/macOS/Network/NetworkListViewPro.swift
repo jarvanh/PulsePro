@@ -78,7 +78,7 @@ struct NetworkListViewPro: NSViewRepresentable {
             case .url:
                 return makePlainCell(text: request.url ?? "–")
             case .host:
-                return makePlainCell(text: request.host?.value ?? "–")
+                return makePlainCell(text: request.host ?? "–")
             case .taskType:
                 return makePlainCell(text: shortName(for: request.type ?? .dataTask))
             case .method:

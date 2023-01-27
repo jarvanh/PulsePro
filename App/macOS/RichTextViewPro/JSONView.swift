@@ -80,27 +80,11 @@ struct JSONView: View {
         }
         .frame(minWidth: 200, idealWidth: 500, maxWidth: .infinity, minHeight: 120, idealHeight: 480, maxHeight: .infinity, alignment: .center)
     }
-    
+
+    #warning("rewrite using PulseUI.ImageView")
     @ViewBuilder
     private func makeImageViewer(image: NSImage) -> some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                HStack {
-                    KeyValueSectionView(viewModel: KeyValueSectionViewModel(title: "Image", color: .pink, items: [
-                        ("Width", "\(image.cgImage?.width ?? 0) px"),
-                        ("Height", "\(image.cgImage?.height ?? 0) px")
-                    ]))
-                }
-                
-                Divider()
-
-                Image(uxImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                
-                Spacer()
-            }.padding()
-        }
+        Text("Placeholder")
     }
     
     @ViewBuilder

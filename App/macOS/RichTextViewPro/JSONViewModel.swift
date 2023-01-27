@@ -77,7 +77,7 @@ final class JSONViewModel: ObservableObject, JSONTextViewDelegate {
         return fileURL
     }
 
-    private func format(json: Any) -> NSAttributedString {
+    func format(json: Any) -> NSAttributedString {
         format(json: JSON.Element.make(json: json).toNode())
     }
     

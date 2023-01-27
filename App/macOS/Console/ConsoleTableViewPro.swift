@@ -81,7 +81,7 @@ struct ConsoleTableViewPro: NSViewRepresentable {
                     return makePlainCell(text: "\(stringPrecise(from: interval))")
                 }
             case .level: return makePlainCell(text: LoggerStore.Level(rawValue: message.level)?.name ?? "–")
-            case .label: return makePlainCell(text: message.label.name)
+            case .label: return makePlainCell(text: message.label)
             case .status:
                 guard let task = message.task else { return nil }
                 let cell = BadgeTableCell.make(in: tableView)
@@ -461,22 +461,22 @@ private final class _ConsoleTableViewPro: NSTableView, NSMenuDelegate {
                     
     @objc func buttonHideLabelTapped(_ item: NSMenuItem) {
         let label = item.representedObject as! String
-        main!.filters.criteria.labels.hidden.insert(label)
+        main!.filters.criteria.messages.labels.hidden.insert(label)
     }
     
     @objc func buttonShowLabelTapped(_ item: NSMenuItem) {
         let label = item.representedObject as! String
-        main!.filters.criteria.labels.focused = label
+        main!.filters.criteria.messages.labels.focused = label
     }
     
     @objc func buttonHideLevelTapped(_ item: NSMenuItem) {
         let level = item.representedObject as! LoggerStore.Level
-        main!.filters.criteria.logLevels.levels.remove(level)
+        main!.filters.criteria.messages.logLevels.levels.remove(level)
     }
     
     @objc func buttonShowLevelTapped(_ item: NSMenuItem) {
         let level = item.representedObject as! LoggerStore.Level
-        main!.filters.criteria.logLevels.levels = [level]
+        main!.filters.criteria.messages.logLevels.levels = [level]
     }
     
     @objc func buttonCopyTapped(_ item: NSMenuItem) {

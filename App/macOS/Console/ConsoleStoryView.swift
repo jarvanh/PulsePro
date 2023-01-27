@@ -227,7 +227,7 @@ extension ConsoleStoryViewModel {
             ]
             
             func makeLabelAttributes(level: LoggerStore.Level) -> [NSAttributedString.Key: Any] {
-                let textColor = level == .trace ? .secondaryLabel : NSColor(ConsoleMessageStyle.textColor(level: level))
+                let textColor = level == .trace ? .secondaryLabel : NSColor.textColor(for: level)
                 return [
                     .font: NSFont.systemFont(ofSize: options.fontSize),
                     .foregroundColor: textColor,
@@ -310,7 +310,7 @@ extension ConsoleStoryViewModel {
         let text = NSMutableAttributedString()
 
         // Title
-        let time = ConsoleMessageViewModel.timeFormatter.string(from: message.createdAt)
+        let time = ConsoleMessageCellViewModel.timeFormatter.string(from: message.createdAt)
         
         // Title first part (digital)
         var titleFirstPart = "\(time) · "
@@ -323,14 +323,13 @@ extension ConsoleStoryViewModel {
         text.append(titleFirstPart, helpers.digitalAttributes)
         
         // Title second part (regular)
-        let level = LoggerStore.Level(rawValue: message.level) ?? .debug
+        let level = message.logLevel
         var titleSecondPart = options.isCompactMode ? "" : "\(level.name) · "
-        titleSecondPart.append("\(message.label.name)")
+        titleSecondPart.append("\(message.label)")
         titleSecondPart.append(options.isCompactMode ? " " : "\n")
         text.append(titleSecondPart, helpers.titleAttributes)
         
         // Text
-        let level = LoggerStore.Level(rawValue: message.level) ?? .debug
         let textAttributes = helpers.textAttributes[level]!
         if options.isCompactMode {
             if let newlineIndex = message.text.firstIndex(of: "\n") {
@@ -360,7 +359,7 @@ extension ConsoleStoryViewModel {
 
         // Title
         let state = task.state
-        let time = ConsoleMessageViewModel.timeFormatter.string(from: message.createdAt)
+        let time = ConsoleMessageCellViewModel.timeFormatter.string(from: message.createdAt)
         var prefix: String
         switch state {
         case .pending:
@@ -420,12 +419,10 @@ extension ConsoleStoryViewModel {
 
         if options.isNetworkExpanded, let data = task.responseBody?.data {
             if let json = try? JSONSerialization.jsonObject(with: data, options: []) {
-                let renderer = AttributedStringJSONRenderer(fontSize: options.fontSize, lineHeight: Constants.ResponseViewer.lineHeight(for: Int(options.fontSize)))
-                let printer = JSONPrinter(renderer: renderer)
-                #warning("TODO: pass error")
-                printer.render(json: json, error: nil)
+                #warning("is it ok?")
                 text.append("\n")
-                text.append(renderer.make())
+                let string = JSONViewModel(json: json).format(json: json)
+                text.append(string)
             } else if let string = String(data: data, encoding: .utf8) {
                 text.append("\n")
                 text.append(string, helpers.textAttributes[.debug]!)

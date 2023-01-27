@@ -5,6 +5,7 @@
 import Foundation
 import Pulse
 import CoreData
+import AppKit
 
 extension URL {
     static var library: URL {
@@ -127,5 +128,22 @@ extension NSManagedObjectContext {
         }
         guard let unwrappedResult = result else { throw LoggerStore.Error.unknownError }
         return try unwrappedResult.get()
+    }
+}
+
+struct ActionViewModel {
+    let action: () -> Void
+    let title: String
+}
+
+extension NSTextField {
+    static func label() -> NSTextField {
+        let label = NSTextField()
+        label.isBezeled = false
+        label.drawsBackground = false
+        label.isEditable = false
+        label.isSelectable = false
+        label.lineBreakMode = .byTruncatingTail
+        return label
     }
 }
