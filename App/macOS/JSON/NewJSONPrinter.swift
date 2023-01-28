@@ -340,49 +340,6 @@ extension NSAttributedString.Key {
     static let node = NSAttributedString.Key(rawValue: "pulse_jsonNode")
 }
 
-final class NewAttributedStringJSONRenderer: NewJSONRenderer {
-    private let output = NSMutableAttributedString()
-    private let fontSize: CGFloat
-    private let lineHeight: CGFloat
-    
-    private var attributes: [_JSONElement: [NSAttributedString.Key: Any]] = [
-        .punctuation: [.foregroundColor: _JSONColors.punctuation],
-        .key: [.foregroundColor: _JSONColors.key],
-        .valueString: [.foregroundColor: _JSONColors.valueString],
-        .valueOther: [.foregroundColor: _JSONColors.valueOther],
-        .null: [.foregroundColor: _JSONColors.null]
-    ]
-    
-    init(fontSize: CGFloat, lineHeight: CGFloat) {
-        self.fontSize = fontSize
-        self.lineHeight = lineHeight
-    }
-    
-    func append(_ string: String, element: _JSONElement) {
-        output.append(string, attributes[element]!)
-    }
-
-    func indent(count: Int) {
-        append(String(repeating: " ", count: count), element: .punctuation)
-    }
-
-    func newline() {
-        output.append("\n")
-    }
-
-    func make() -> NSAttributedString {
-        let ps = NSMutableParagraphStyle()
-        ps.minimumLineHeight = lineHeight
-        ps.maximumLineHeight = lineHeight
-        
-        output.addAttributes([
-            .font: UXFont.monospacedSystemFont(ofSize: CGFloat(fontSize), weight: .regular),
-            .paragraphStyle: ps
-        ])
-        return output
-    }
-}
-
 struct _JSONColors {
     static let punctuation = UXColor.dynamic(
         light: .init(red: 113.0/255.0, green: 128.0/255.0, blue: 141.0/255.0, alpha: 1.0),

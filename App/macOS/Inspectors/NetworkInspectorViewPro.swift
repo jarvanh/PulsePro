@@ -76,8 +76,6 @@ struct NetworkInspectorViewPro: View {
         }.padding(EdgeInsets(top: 7, leading: 10, bottom: 6, trailing: 10))
     }
 
-    #warning("add summary page")
-
     @ViewBuilder
     private var selectedTabView: some View {
         switch selectedTab {
@@ -110,9 +108,10 @@ struct NetworkInspectorViewPro: View {
 
     @ViewBuilder
     private func makeSummaryView() -> some View {
-        let string = TextRenderer().make {
+        let string = NSMutableAttributedString(attributedString: TextRenderer().make {
             $0.render(viewModel.task, content: [.largeHeader, .taskDetails, .requestComponents, .requestQueryItems, .errorDetails, .requestComponents])
-        }
+        })
+        let _ = string.addAttributes([.font: UXFont.monospacedSystemFont(ofSize: CGFloat(AppSettings.shared.viewerFontSize), weight: .regular)])
         RichTextViewPro(viewModel: .init(string: string), content: .headers)
     }
 
